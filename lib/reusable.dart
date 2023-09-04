@@ -1,12 +1,14 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'masking.dart';
+
 export 'package:flutter/material.dart';
 export 'dart:io';
 export 'masking.dart';
+export 'dart:convert';
+export './views/todo_list_view.dart';
 
 List days = [
   "Monday",
@@ -17,6 +19,16 @@ List days = [
   "Saturday",
   "Sunday"
 ];
+
+// Methods
+String rFormatString(int index) {
+  final hour = DateTime.now().hour;
+  int hourIndex = hour + index;
+  String formattedTime =
+      (hourIndex == 12 ? hourIndex : hourIndex % 12).toString() +
+          (hourIndex % 24 > 11 ? " PM" : " AM");
+  return formattedTime;
+}
 
 Future<File> rGetFile() async {
   var path = await getApplicationDocumentsDirectory();
@@ -31,7 +43,7 @@ Future<void> rSaveDataToDb(File file) async {
   List data = [];
   List sliderStates = [];
   for (int i = 0; i < 24; i++) {
-    data.add(mFormatString(i));
+    data.add(rFormatString(i));
     sliderStates.add([-1.0, -1.0, -1.0]);
   }
   var date = DateTime.now();
@@ -52,7 +64,7 @@ Future<void> rAddDataToDb(File file) async {
   List data = [];
   List sliderStates = [];
   for (int i = 0; i < 24; i++) {
-    data.add(mFormatString(i));
+    data.add(rFormatString(i));
     sliderStates.add([-1.0, -1.0, -1.0]);
   }
   dynamic fileData = jsonDecode(await file.readAsString());
@@ -87,12 +99,19 @@ Future<int> addTodaysData(File file) async {
       .toList()
       .contains("$dateToday ${days[date.weekday - 1]}")) {
     for (int i = 0; i < 24; i++) {
-      data.add(mFormatString(i));
+      data.add(rFormatString(i));
     }
     fileData["$dateToday ${days[date.weekday - 1]}"] = data;
     await file.writeAsString(jsonEncode(fileData));
   }
   return fileData.keys.toList().indexOf("$dateToday ${days[date.weekday - 1]}");
+}
+
+Future<List> rGetFileDataAndIndex() async {
+  var file = await rGetFile();
+  await rSaveDataToDb(file);
+  int todaysDateIndex = await addTodaysData(file);
+  return [file, todaysDateIndex];
 }
 
 class RowContainer extends StatelessWidget {
@@ -125,7 +144,7 @@ class RowContainer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
-                    width: width / 7,
+                    width: width / mRowWidthFactor,
                     child: Padding(
                         padding: const EdgeInsets.only(left: 8.0),
                         child: Text(col1Text,
@@ -135,7 +154,7 @@ class RowContainer extends StatelessWidget {
                                     : FontWeight.bold,
                                 fontSize: rowType == 'body' ? 12 : 16)))),
                 SizedBox(
-                    width: width / 12,
+                    width: width / mRowWidthFactor,
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: Image.asset(
@@ -144,13 +163,13 @@ class RowContainer extends StatelessWidget {
                       ),
                     )),
                 SizedBox(
-                    width: width / 12,
+                    width: width / mRowWidthFactor,
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: Image.asset(col3Text, fit: BoxFit.contain),
                     )),
                 SizedBox(
-                    width: width / 12,
+                    width: width / mRowWidthFactor,
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: Image.asset(col4Text, fit: BoxFit.contain),

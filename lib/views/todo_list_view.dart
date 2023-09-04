@@ -1,14 +1,13 @@
-import 'dart:convert';
 import 'package:poc_app/reusable.dart';
 
 class TodoListView extends StatefulWidget {
   final File file;
-  final int todaysDateIndex;
+  final int currentDateIndex;
   final String title;
   const TodoListView(
       {super.key,
       required this.file,
-      required this.todaysDateIndex,
+      required this.currentDateIndex,
       required this.title});
 
   @override
@@ -36,7 +35,7 @@ class _TodoListViewState extends State<TodoListView> {
 
     // Initially, we will render today's date only.
     for (String i in ["top", "bottom"]) {
-      renderingIndices[i] = widget.todaysDateIndex;
+      renderingIndices[i] = widget.currentDateIndex;
     }
 
     _scrollController.addListener(() async {

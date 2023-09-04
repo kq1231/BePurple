@@ -1,20 +1,8 @@
-import 'package:poc_app/views/todo_list_view.dart';
 import 'reusable.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
-}
-
-class SliderData {
-  double value = 0.0;
-}
-
-Future<List> logix() async {
-  var file = await rGetFile();
-  await rSaveDataToDb(file);
-  int todaysDateIndex = await addTodaysData(file);
-  return [file, todaysDateIndex];
 }
 
 class MyApp extends StatelessWidget {
@@ -45,12 +33,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: logix(),
+      future: rGetFileDataAndIndex(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
           return TodoListView(
               file: snapshot.data[0],
-              todaysDateIndex: snapshot.data[1],
+              currentDateIndex: snapshot.data[1],
               title: widget.title);
         } else {
           return Scaffold(
